@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GÜLKAY SERA TEKNOLOJİLERİ</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-transparent glass-nav">
+            <div class="container-fluid">
+
+                <!-- SOL MARKA -->
+                <a class="navbar-brand text-white fw-bold brand-premium" asp-controller="Home" asp-action="Index">
+                    GÜLKAY SERA TEKNOLOJİLERİ
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- ORTA MENÜ -->
+                <div id="navbarNav" class="collapse navbar-collapse justify-content-center">
+                    <ul class="navbar-nav gap-4">
+
+                        <li class="nav-item">
+                            <a class="nav-link text-white premium-link" asp-controller="Home" asp-action="Index">
+                                Makine Durumu
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Settings">Ayarlar</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-white premium-link" asp-controller="Sensors" asp-action="Index">
+                                Sıcaklık & Nem
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-white premium-link" asp-controller="AI" asp-action="Index">Asistan</a>
+                        </li>
+
+                    </ul>
+                </div>
+
+                <!-- Sağ Taraf -->
+                <div class="d-none d-lg-flex align-items-center gap-3">
+                    <span class="text-white small opacity-75">v1.0</span>
+
+                    <!-- Tema Değiştir -->
+                    <span class="theme-toggle" id="themeToggle">
+                        🌙
+                    </span>
+
+                </div>
+
+            </div>
+        </nav>
+    </header>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-wrapper">
+        @RenderBody()
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer class="footer glass-footer text-center text-white">
+        <p class="m-0">
+            &copy; 2025 - GÜLKAY SERA TEKNOLOJİLERİ —
+            <a class="text-info" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </p>
+    </footer>
+
+
+    <!-- JS SCRIPTS -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- BU ÇOK ÖNEMLİ: Scripts section HATASINI BİTİRİR -->
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

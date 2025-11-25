@@ -1,0 +1,641 @@
+/* --- GENEL AYARLAR & DARK MODE --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+:root {
+    --primary-bg: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --green-glow: #10b981;
+    --red-glow: #ef4444;
+    --text-color: #f8fafc;
+}
+
+/* Sayfa Geneli */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at center, #1e293b, #0f172a);
+    color: var(--text-color);
+    min-height: 100vh;
+}
+
+/* --- MVC NAVBAR DÜZELTMELERÝ --- */
+/* Standart menü beyaz gelirse onu þeffaf/koyu yapalým */
+.navbar {
+    background-color: rgba(15, 23, 42, 0.9) !important; /* Koyu Lacivert */
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.navbar-brand, .nav-link {
+    color: #e2e8f0 !important; /* Linkleri Açýk Gri Yap */
+}
+
+    .nav-link:hover {
+        color: #10b981 !important; /* Üzerine gelince yeþil */
+    }
+
+/* MVC'nin container yapýsýnýn arka planý bozmasýný engelle */
+.container {
+    max-width: 100% !important; /* Geniþliði serbest býrak */
+}
+
+/* --- ORTALAMA KAPSAYICISI --- */
+/* Menü yukarýda kalacak, bu kýsým ekranýn geri kalanýný ortalayacak */
+.main-content-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 85vh; /* Menü payý hariç yükseklik */
+    padding: 20px;
+}
+
+/* --- KART TASARIMI (Ayný kaldý) --- */
+.panel-card.main-control {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    padding: 60px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+    text-align: center;
+    animation: popup 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popup {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.card-header {
+    font-size: 1.3rem;
+    color: #94a3b8;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: 600;
+}
+
+.power-ring {
+    width: 160px;
+    height: 160px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: #111827;
+    border: 6px solid #334155;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: inset 0 0 40px #000;
+    transition: all 0.4s ease;
+}
+
+.icon-center {
+    font-size: 4rem;
+    color: #475569;
+    transition: all 0.4s;
+}
+
+.status-text {
+    margin-top: 35px;
+    margin-bottom: 45px;
+}
+
+    .status-text .label {
+        font-size: 0.9rem;
+        color: #64748b;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .status-text h2 {
+        font-size: 2.5rem;
+        color: #e2e8f0;
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+.button-group {
+    display: flex;
+    gap: 20px;
+}
+
+.btn {
+    flex: 1;
+    padding: 20px;
+    border-radius: 16px;
+    border: none;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-on {
+    background: linear-gradient(135deg, #059669, #10b981);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.2);
+}
+
+.btn-off {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2);
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.btn:active {
+    transform: scale(0.96);
+}
+
+.power-ring.running {
+    border-color: var(--green-glow);
+    box-shadow: 0 0 50px rgba(16, 185, 129, 0.4), inset 0 0 30px #000;
+}
+
+    .power-ring.running .icon-center {
+        color: var(--green-glow);
+        text-shadow: 0 0 25px rgba(16, 185, 129, 0.8);
+    }
+
+.active-text {
+    color: var(--green-glow) !important;
+    text-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+}
+
+.ring-light {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    border-radius: 50%;
+    border: 6px solid transparent;
+    border-top-color: #34d399;
+    display: none;
+}
+
+.power-ring.running .ring-light {
+    display: block;
+    animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- SAYAÇ STÝLLERÝ --- */
+.timer-text {
+    position: absolute;
+    font-size: 1.8rem; /* Saatin büyüklüðü */
+    font-weight: 700;
+    color: #fff;
+    font-family: 'Courier New', Courier, monospace; /* Dijital saat hissi */
+    letter-spacing: 2px;
+    display: none; /* Baþlangýçta gizli */
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.8); /* Hafif yeþil parlama */
+    z-index: 10;
+}
+
+/* Çalýþýrken ikonu gizlemek için yardýmcý sýnýf */
+.hide-icon {
+    display: none !important;
+}
+
+
+
+//SENSOR DASHBOARD BURASI!!!!!!!!!!!!!!!
+/* --- SENSÖR SAYFASI IZGARA YAPISI --- */
+/* --- YENÝ DÜZEN (LAYOUT) --- */
+.sensors-page-layout {
+    flex-direction: column; /* Alt alta dizilim */
+    gap: 30px;
+    justify-content: flex-start; /* Yukarýdan baþla */
+    padding-top: 40px;
+}
+
+/* Üst Sýra (Canlý Göstergeler) */
+.live-status-row {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Küçük Kartlar */
+.panel-card.small-card {
+    width: 220px; /* Kart geniþliði küçüldü */
+    padding: 25px;
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--card-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.mini-header {
+    font-size: 1rem;
+    color: #94a3b8;
+    margin-bottom: 15px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* Küçük Gauge Ayarlarý */
+.small-gauge svg {
+    /* SVG boyutu HTML'de 140 olarak ayarlandý */
+}
+
+.small-gauge .gauge-progress {
+    stroke-dasharray: 377; /* 2*pi*60 */
+    stroke-dashoffset: 377;
+    stroke-width: 10; /* Daha ince çizgi */
+}
+
+.small-gauge .gauge-bg {
+    stroke-width: 10;
+}
+
+.small-text {
+    font-size: 2rem; /* Yazý küçüldü */
+}
+
+/* --- ALT KISIM: GRAFÝK BÖLÜMÜ --- */
+.chart-section {
+    width: 90%;
+    max-width: 900px; /* Geniþ bir panel */
+    padding: 30px;
+    background: rgba(15, 23, 42, 0.8); /* Biraz daha koyu zemin */
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+    .chart-header .title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #e2e8f0;
+    }
+
+/* Tarih Seçiciler (Dark Mode Uyumlu) */
+.date-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.05);
+    padding: 8px 15px;
+    border-radius: 12px;
+}
+
+.date-input {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    color-scheme: dark; /* Tarayýcý takvimini koyu yapar */
+}
+
+    .date-input:focus {
+        border-color: var(--green-glow);
+    }
+
+.btn-filter {
+    background: var(--green-glow);
+    border: none;
+    color: white;
+    padding: 6px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+
+    .btn-filter:hover {
+        opacity: 0.9;
+    }
+
+/* Grafik Alaný Yüksekliði */
+.chart-container {
+    position: relative;
+    height: 350px; /* Grafik yüksekliði */
+    width: 100%;
+}
+
+/* Mobilde tarihleri alt alta al */
+@media (max-width: 768px) {
+    .chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .date-filters {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+
+//ai kýsmý için css !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+/* =========================================
+   ASÝSTAN (CHAT) SAYFASI STÝLLERÝ - SCROLL FIX
+   ========================================= */
+/* --- 1. SAYFA GÖVDESÝ (EN ÖNEMLÝ KISIM) --- */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at center, #1e293b, #0f172a);
+    color: #f8fafc;
+    /* SAYFAYI KÝLÝTLE: */
+    height: 100vh; /* Ekran boyutu kadar olsun */
+    overflow: hidden; /* Asla scroll çubuðu çýkmasýn */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navbar Düzenlemesi (Eðer varsa) */
+.navbar {
+    flex-shrink: 0; /* Navbar sýkýþmasýn */
+    z-index: 100;
+}
+
+/* --- 2. ORTALAMA KAPSAYICISI --- */
+.main-content-wrapper {
+    flex: 1; /* Kalan tüm boþluðu kapla */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    height: 100%; /* Yükseklik sýnýrlý */
+    overflow: hidden; /* Taþanlarý gizle */
+}
+
+/* --- 3. CHAT KARTI (ANA KUTU) --- */
+.panel-card.chat-interface {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 25px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+    width: 100%;
+    max-width: 700px;
+    height: 85vh; /* Ekranýn %85'i kadar yükseklik (Sabit) */
+
+    display: flex;
+    flex-direction: column; /* Alt alta dizilim */
+    overflow: hidden; /* Kartýn dýþýna taþmayý engelle */
+    padding: 0;
+    margin: 0 auto;
+}
+
+/* HEADER */
+.chat-header {
+    flex-shrink: 0; /* Asla küçülmesin */
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.ai-avatar {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: white;
+    position: relative;
+}
+
+.online-dot {
+    width: 12px;
+    height: 12px;
+    background: #10b981;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    border: 2px solid #1e293b;
+}
+
+.header-info h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.header-info span {
+    font-size: 0.8rem;
+    color: #10b981;
+}
+
+/* --- 4. MESAJ ALANI (SCROLL SADECE BURADA OLACAK) --- */
+.chat-messages {
+    flex-grow: 1; /* Boþluðu doldur */
+    overflow-y: auto; /* *** SADECE BURASI KAYACAK *** */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    scroll-behavior: smooth;
+    height: 0; /* Flex-grow çalýþmasý için kritik */
+}
+
+    /* Scrollbar Tasarýmý */
+    .chat-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .chat-messages::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.2);
+        border-radius: 3px;
+    }
+
+/* Mesaj Baloncuklarý */
+.message {
+    max-width: 75%;
+    padding: 12px 18px;
+    position: relative;
+    line-height: 1.5;
+    font-size: 0.95rem;
+    word-wrap: break-word;
+}
+
+.ai-message {
+    align-self: flex-start;
+    background: rgba(40, 50, 70, 0.8);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 15px 15px 15px 0;
+    color: #e2e8f0;
+}
+
+.user-message {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-radius: 15px 15px 0 15px;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+
+.msg-time {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    margin-top: 5px;
+    text-align: right;
+    display: block;
+}
+
+/* Hýzlý Butonlar */
+.quick-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    flex-shrink: 0;
+}
+
+    .quick-actions button {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #cbd5e1;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+
+        .quick-actions button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border-color: #10b981;
+        }
+
+/* --- 5. INPUT ALANI (SABÝT KALACAK) --- */
+.chat-input-area {
+    flex-shrink: 0; /* Asla küçülmesin */
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.9);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+    .chat-input-area input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 15px 20px;
+        border-radius: 30px;
+        color: white;
+        outline: none;
+        font-family: 'Inter', sans-serif;
+    }
+
+        .chat-input-area input:focus {
+            border-color: #3b82f6;
+        }
+
+/* SOR BUTONU */
+.btn-send {
+    height: 50px;
+    padding: 0 30px;
+    border-radius: 25px;
+    border: none;
+    background: #3b82f6;
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+    .btn-send:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+    }
+
+/* Animasyonlar */
+.typing-indicator {
+    display: flex;
+    gap: 5px;
+    width: fit-content;
+    padding: 15px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: #94a3b8;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+}
+
+    .dot:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+
+    .dot:nth-child(2) {
+        animation-delay: -0.16s;
+    }
+
+@keyframes bounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+
+    40% {
+        transform: scale(1);
+    }
+}

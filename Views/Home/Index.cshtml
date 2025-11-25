@@ -1,0 +1,105 @@
+﻿
+
+@{
+    ViewData["Title"] = "Makine Durumu";
+    /* Layout = null; BURAYI SİLDİK, ARTIK STANDART MVC PANELİ GELECEK */
+}
+
+<link rel="stylesheet" href="~/css/site.css">
+
+<div class="main-content-wrapper">
+
+    <div class="panel-card main-control">
+        <div class="card-header">
+            <i class="fas fa-robot"></i> Sistem Kontrolü
+        </div>
+
+        <div class="status-display">
+            <div class="power-ring" id="powerRing">
+                <div class="ring-light"></div>
+                <i class="fas fa-power-off icon-center"></i>
+            </div>
+
+            <div class="status-text">
+                <span class="label">Operasyon Durumu</span>
+                <h2 id="machineStatusText">BEKLEMEDE</h2>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-on" onclick="setMachineState(true)">BAŞLAT</button>
+            <button class="btn btn-off" onclick="setMachineState(false)">DURDUR</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function setMachineState(isActive) {
+        const ring = document.getElementById('powerRing');
+        const statusText = document.getElementById('machineStatusText');
+
+        if (isActive) {
+            ring.classList.add('running');
+            statusText.innerText = "ÇALIŞIYOR";
+            statusText.classList.add('active-text');
+        } else {
+            ring.classList.remove('running');
+            statusText.innerText = "BEKLEMEDE";
+            statusText.classList.remove('active-text');
+        }
+    }
+</script>
+
+@section Scripts {
+    <script>
+
+        // WebSocket bağlantısı
+        const socket = new WebSocket("ws://localhost:1880/vs/raspberry");
+
+                socket.onmessage = function(event) {
+            try {
+                const data = JSON.parse(event.data);
+
+                // 1. MEVCUT KISIM: Makine Durumu Kontrolü
+                if (data.type === "machine") {
+                    let statusText = document.getElementById("machineStatus");
+                    if (data.value === "ON") {
+                        statusText.innerText = "Çalışıyor";
+                        statusText.style.color = "#4cff4c"; // Yeşil
+                    } else if (data.value === "OFF") {
+                        statusText.innerText = "Durduruldu";
+                        statusText.style.color = "#ff5c5c"; // Kırmızı
+                    }
+                }
+
+                // 2. YENİ EKLENECEK KISIM: Sıcaklık ve Nem Kontrolü
+                // Node-RED'den { "sicaklik": 24, "nem": 50 } şeklinde veri gelirse:
+                else if (data.sicaklik !== undefined && data.nem !== undefined) {
+                    // HTML'indeki elementlerin ID'leri buradakilerle aynı olmalı!
+                    // Eğer HTML'de id="tempDisplay" ise burayı da öyle düzelt.
+                    document.getElementById("sicaklikDegeri").innerText = data.sicaklik + " °C";
+                    document.getElementById("nemDegeri").innerText = "% " + data.nem;
+                }
+
+            } catch (e) {
+                console.log("WebSocket JSON hatası:", e);
+            }
+        };
+
+
+        // Komut gönder
+        function sendCommand(value) {
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    type: "machineCommand",
+                    value: value
+                }));
+            }
+        }
+
+        function machineOn()  { sendCommand("ON"); }
+        function machineOff() { sendCommand("OFF"); }
+
+    </script>
+}

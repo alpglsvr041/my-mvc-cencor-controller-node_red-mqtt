@@ -1,0 +1,240 @@
+﻿@{
+    ViewData["Title"] = "AI Asistan";
+}
+
+<link rel="stylesheet" href="~/css/site.css">
+
+<div class="main-content-wrapper">
+
+    <div class="panel-card chat-interface">
+
+        <div class="chat-header">
+            <div class="ai-avatar">
+                <i class="fas fa-robot"></i>
+                <div class="online-dot"></div>
+            </div>
+            <div class="header-info">
+                <h3>Gülkay Asistan</h3>
+                <span>Sera Yönetim Uzmanı • Çevrimiçi</span>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatBox">
+
+            <div class="message ai-message">
+                <div class="msg-content">
+                    Merhaba! Ben seranızın yapay zeka asistanıyım. 🌱<br>
+                    Sıcaklık, nem veya makine durumu hakkında bana soru sorabilirsiniz.
+                </div>
+                <div class="msg-time">Şimdi</div>
+            </div>
+
+            <div class="quick-actions" id="quickActions">
+                <button onclick="sendQuick('Sıcaklık kaç derece?')">🌡️ Sıcaklık Durumu</button>
+                <button onclick="sendQuick('Makine çalışıyor mu?')">⚙️ Makine Kontrolü</button>
+                <button onclick="sendQuick('Domatesler için ideal sıcaklık nedir?')">🍅 Sera Bilgisi</button>
+            </div>
+
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="userInp" placeholder="Bir şeyler sorun..." onkeypress="handleEnter(event)" autocomplete="off">
+            <button class="btn-send" onclick="sendMessage()">
+                Sor
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    const chatBox = document.getElementById('chatBox');
+    const userInput = document.getElementById('userInp');
+    const quickActions = document.getElementById('quickActions');
+
+    function handleEnter(e) {
+        if (e.key === 'Enter') sendMessage();
+    }
+
+    function sendQuick(text) {
+        userInput.value = text;
+        sendMessage();
+    }
+
+    async function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        // 1. Kullanıcı Mesajını Ekrana Bas
+        appendMessage('user', text);
+        userInput.value = '';
+
+        // Hızlı butonları gizle
+        if(quickActions) quickActions.style.display = 'none';
+
+        // 2. "Yazıyor..." Animasyonunu Göster
+        showTyping();
+
+        try {
+            // 3. SENİN CONTROLLER'A İSTEK ATIYORUZ
+            const response = await fetch('/AI/Ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // DİKKAT: Senin 'AskRequest' sınıfın 'Question' bekliyor (Büyük Q ile)
+                body: JSON.stringify({ Question: text })
+            });
+
+            if (!response.ok) throw new Error("API Bağlantı Hatası: " + response.status);
+
+            const data = await response.json();
+
+            // 4. Animasyonu kaldır ve cevabı bas
+            removeTyping();
+
+            // Gelen cevapta satır sonları (\n) varsa HTML (<br>) yapıyoruz ki düzgün görünsün
+            // Ayrıca **bold** işaretlerini HTML <b> ile değiştiriyoruz
+            let formattedAnswer = data.answer
+                .replace(/\n/g, "<br>")
+                .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>"); // Markdown bold düzeltmesi
+
+            appendMessage('ai', formattedAnswer);
+
+        } catch (error) {
+            removeTyping();
+            console.error(error);
+            appendMessage('ai', "Şu an servise ulaşamıyorum şefim. Bağlantını kontrol et istersen. 🔌");
+        }
+    }
+
+    function appendMessage(sender, text) {
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message', sender === 'user' ? 'user-message' : 'ai-message');
+
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        msgDiv.innerHTML = `
+            <div class="msg-content">${text}</div>
+            <span class="msg-time">${time}</span>
+        `;
+
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    let typingDiv;
+    function showTyping() {
+        typingDiv = document.createElement('div');
+        typingDiv.classList.add('message', 'ai-message', 'typing-indicator');
+        typingDiv.innerHTML = `
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        `;
+        chatBox.appendChild(typingDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function removeTyping() {
+        if(typingDiv) typingDiv.remove();
+    }
+</script>
+
+
+
+@* BURDAN SONRASI BASKA *@
+
+<script>
+    document.getElementById("askBtn").addEventListener("click", async () => {
+
+        const q = document.getElementById("question").value.trim();
+        if (!q) return;
+
+        const res = await fetch("/AI/Ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: q })
+        });
+
+        const data = await res.json();
+
+        const box = document.getElementById("answerBox");
+        box.style.display = "block";
+        box.innerText = data.answer;
+    });
+
+
+</script>
+<script>
+    // 1. Elementleri Seçiyoruz
+    const txtInput = document.getElementById("txtMessage");
+    const btnSend = document.getElementById("btnSend");
+    const chatBox = document.getElementById("chatHistory");
+
+    // 2. Tıklama ve Enter Tuşu Olayları
+    btnSend.addEventListener("click", sendMessage);
+    txtInput.addEventListener("keypress", function (e) {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    // 3. Ana Mesaj Gönderme Fonksiyonu
+    async function sendMessage() {
+        const questionText = txtInput.value.trim();
+
+        // Boşsa gönderme
+        if (!questionText) return;
+
+        // A) Kullanıcı mesajını ekrana bas (Sağ taraf)
+        appendMessage(questionText, 'user-message');
+
+        // B) Inputu TEMİZLE
+        txtInput.value = "";
+
+        // C) "Yazıyor..." efekti ekle
+        const loadingId = "loading-" + Date.now();
+        const loadingHtml = `<div class="message ai-message" id="${loadingId}"><i>Yazıyor...</i></div>`;
+        chatBox.insertAdjacentHTML('beforeend', loadingHtml);
+        scrollToBottom();
+
+        try {
+            // D) Backend'e İsteği At (Senin orijinal fetch kodun)
+            const res = await fetch("/AI/Ask", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question: questionText })
+            });
+
+            const data = await res.json();
+
+            // E) "Yazıyor..." yazısını kaldır
+            const loadingEl = document.getElementById(loadingId);
+            if (loadingEl) loadingEl.remove();
+
+            // F) Gelen cevabı ekrana bas (Sol taraf)
+            if (data && data.answer) {
+                appendMessage(data.answer, 'ai-message'); // data.answer senin backend'den dönen property
+            } else {
+                appendMessage("Cevap alınamadı.", 'ai-message');
+            }
+
+        } catch (error) {
+            console.error("Hata:", error);
+            // Hatayı silip uyarı verelim
+            const loadingEl = document.getElementById(loadingId);
+            if (loadingEl) loadingEl.remove();
+            appendMessage("Sunucu hatası oluştu.", 'ai-message');
+        }
+    }
+
+    // Yardımcı Fonksiyon: Mesajı HTML'e ekler
+    function appendMessage(text, className) {
+        const div = document.createElement("div");
+        div.className = `message ${className}`;
+        div.innerHTML = text; // HTML tagleri varsa çalışsın diye innerHTML kullandık
+        chatBox.appendChild(div);
+        scrollToBottom();
+    }
+
+    // Yardımcı Fonksiyon: En alta kaydır
+    function scrollToBottom() {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>

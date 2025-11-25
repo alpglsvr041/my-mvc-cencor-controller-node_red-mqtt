@@ -1,0 +1,171 @@
+﻿@{
+    ViewData["Title"] = "Sıcaklık & Nem Geçmişi";
+}
+
+<link rel="stylesheet" href="~/css/site.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="main-content-wrapper sensors-page-layout">
+
+    <div class="live-status-row">
+        <div class="panel-card small-card temp-theme">
+            <div class="mini-header"><i class="fas fa-temperature-high"></i> SICAKLIK</div>
+            <div class="gauge-container small-gauge">
+                <svg width="140" height="140">
+                    <circle cx="70" cy="70" r="60" class="gauge-bg"></circle>
+                    <circle cx="70" cy="70" r="60" class="gauge-progress" id="tempCircle"></circle>
+                </svg>
+                <div class="gauge-center">
+                    <span class="gauge-value small-text" id="tempValue">--</span>
+                    <span class="gauge-unit">°C</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-card small-card hum-theme">
+            <div class="mini-header"><i class="fas fa-tint"></i> NEM</div>
+            <div class="gauge-container small-gauge">
+                <svg width="140" height="140">
+                    <circle cx="70" cy="70" r="60" class="gauge-bg"></circle>
+                    <circle cx="70" cy="70" r="60" class="gauge-progress" id="humCircle"></circle>
+                </svg>
+                <div class="gauge-center">
+                    <span class="gauge-value small-text" id="humValue">--</span>
+                    <span class="gauge-unit">%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-card chart-section">
+        <div class="chart-header">
+            <div class="title"><i class="fas fa-history"></i> Geçmiş Veri Analizi</div>
+            <div class="date-filters">
+                <input type="date" class="date-input" id="startDate">
+                <span style="color:#64748b">-</span>
+                <input type="date" class="date-input" id="endDate">
+                <button class="btn-filter" onclick="updateChartData()">Getir</button>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="historyChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        // --- 1. GÖSTERGE (GAUGE) AYARLARI ---
+        const circumference = 377; // 2 * pi * 60
+
+        function updateGauge(circleId, valueId, value, maxVal) {
+            const circle = document.getElementById(circleId);
+            const text = document.getElementById(valueId);
+
+            // Değer sınırlarını kontrol et
+            let val = value > maxVal ? maxVal : value;
+            val = val < 0 ? 0 : val;
+
+            let percent = (val / maxVal) * 100;
+            const offset = circumference - (percent / 100) * circumference;
+
+            // Animasyonlu güncelleme
+            circle.style.strokeDashoffset = offset;
+            text.innerText = value;
+        }
+
+        // --- 2. WEBSOCKET BAĞLANTISI (NODE-RED) ---
+        // ÖNEMLİ: Node-RED'deki adres neyse onu buraya yaz.
+        // Önceki konuşmada '/vs/raspberry' çalışmıştı.
+        const socketUrl = "ws://localhost:1880/vs/raspberry";
+        let socket;
+
+        function baglantiKur() {
+            socket = new WebSocket(socketUrl);
+
+            socket.onopen = function() {
+                console.log("Sensör sayfasına Node-RED bağlandı.");
+            };
+
+            socket.onmessage = function (event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    console.log("Gelen Veri:", data);
+
+                    // Node-RED'den gelen veriyi göstergelere bas
+                    // Not: data.sicaklik veya data.temp (Node-RED func kodunda ne yazdıysan o)
+
+                    if (data.sicaklik !== undefined) {
+                        updateGauge("tempCircle", "tempValue", data.sicaklik, 60);
+                    }
+                    if (data.nem !== undefined) {
+                        updateGauge("humCircle", "humValue", data.nem, 100);
+                    }
+
+                } catch (e) {
+                    console.error("Veri okuma hatası:", e);
+                }
+            };
+
+            socket.onclose = function() {
+                console.log("Bağlantı koptu, tekrar deneniyor...");
+                setTimeout(baglantiKur, 3000);
+            };
+        }
+
+        // --- 3. GRAFİK (CHART.JS) ---
+        let myChart;
+        function initChart() {
+            const ctx = document.getElementById('historyChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+                    datasets: [
+                        {
+                            label: 'Sıcaklık (°C)',
+                            data: [22, 23, 21, 24, 25, 24, 23],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Nem (%)',
+                            data: [60, 62, 58, 65, 70, 68, 65],
+                            borderColor: '#06b6d4',
+                            backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#cbd5e1' } } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        // Sayfa Yüklendiğinde Başlat
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('startDate').valueAsDate = new Date();
+            document.getElementById('endDate').valueAsDate = new Date();
+
+            initChart();  // Grafiği çiz
+            baglantiKur(); // WebSocket'i başlat
+        });
+
+        function updateChartData() {
+            alert("Veritabanı bağlantısı henüz yapılmadı.");
+        }
+    </script>
+}

@@ -1,0 +1,89 @@
+﻿@{
+    ViewData["Title"] = "Sistem Ayarları";
+}
+
+<style>
+    /* --- SETTINGS TASARIMI --- */
+    .settings-wrapper {
+        max-width: 800px;
+        margin: 40px auto;
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        color: #e2e8f0;
+    }
+
+    .setting-card {
+        background: rgba(15, 23, 42, 0.5);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        border-left: 5px solid #38bdf8;
+    }
+    /* Slider ve Buton Stilleri */
+    input[type=range] {
+        width: 100%;
+        cursor: pointer;
+        accent-color: #38bdf8;
+    }
+
+    .btn-save {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #0ea5e9, #2563eb);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 15px;
+    }
+</style>
+
+<div class="settings-wrapper">
+    <h2 style="text-align:center; margin-bottom:30px; color:#38bdf8;">SİSTEM AYARLARI</h2>
+
+    <div class="setting-card" style="border-left-color: #22c55e;">
+        <h3><i class="fas fa-robot"></i> Otomatik Mod</h3>
+        <div style="margin-top:10px;">
+            <label><input type="checkbox" id="otoModSwitch" checked> Aktif Et</label>
+        </div>
+    </div>
+
+    <div class="setting-card" style="border-left-color: #f59e0b;">
+        <h3><i class="fas fa-thermometer-half"></i> Fan Limiti: <span id="tempVal">28</span>°C</h3>
+        <input type="range" id="tempRange" min="15" max="50" value="28" oninput="document.getElementById('tempVal').innerText=this.value">
+    </div>
+
+    <div class="setting-card" style="border-left-color: #0ea5e9;">
+        <h3><i class="fas fa-tint"></i> Sulama Limiti: %<span id="humVal">40</span></h3>
+        <input type="range" id="humRange" min="10" max="90" value="40" oninput="document.getElementById('humVal').innerText=this.value">
+    </div>
+
+    <button class="btn-save" onclick="kaydet()">AYARLARI KAYDET</button>
+</div>
+
+<script>
+    // Node-RED Bağlantısı
+    var socketUrl = "ws://localhost:1880/vs/raspberry";
+    var socket;
+    try { socket = new WebSocket(socketUrl); } catch(e) {}
+
+    function kaydet() {
+        var veri = {
+            tip: "ayar",
+            oto: document.getElementById("otoModSwitch").checked,
+            temp: document.getElementById("tempRange").value,
+            hum: document.getElementById("humRange").value
+        };
+        if(socket && socket.readyState === 1) {
+            socket.send(JSON.stringify(veri));
+            alert("Ayarlar Gönderildi!");
+        } else {
+            alert("Bağlantı yok ama ayarlar kaydedildi (Simülasyon)");
+        }
+    }
+</script>
